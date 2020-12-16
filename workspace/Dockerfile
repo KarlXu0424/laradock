@@ -58,6 +58,7 @@ RUN if [ ${CHANGE_SOURCE} = true ]; then \
 
 # always run apt update when start and after add new source list, then clean up at end.
 RUN set -xe; \
+    find /etc/apt/sources.list.d/ -type f -name "ondrej-ubuntu-php-xenial.list" -exec  sed  -i.bak -r  's#deb(-src)?\s*http(s)?://ppa.launchpad.net#deb\1 https\2://launchpad.proxy.ustclug.org#ig' {} \; && \
     apt-get update -yqq && \
     pecl channel-update pecl.php.net && \
     groupadd -g ${PGID} laradock && \
@@ -192,11 +193,11 @@ RUN echo "" >> ~/.bashrc && \
 # Crontab
 ###########################################################################
 
-USER root
+# USER root
 
-COPY ./crontab /etc/cron.d
+# COPY ./crontab /etc/cron.d
 
-RUN chmod -R 644 /etc/cron.d
+# RUN chmod -R 644 /etc/cron.d
 
 ###########################################################################
 # Drush:
@@ -745,6 +746,16 @@ ARG INSTALL_PNPM=false
 
 RUN if [ ${INSTALL_PNPM} = true ]; then \
     npx pnpm add -g pnpm \
+;fi
+
+
+###########################################################################
+# CNPM:
+###########################################################################
+USER laradock
+
+RUN if [ ${INSTALL_NODE} = true ]; then \
+    npm install -g cnpm --registry=https://registry.npm.taobao.org \
 ;fi
 
 
